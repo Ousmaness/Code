@@ -1,0 +1,129 @@
+!pip install duckdb
+import duckdb
+
+# Create a connection
+conn = duckdb.connect(database=':memory:', read_only=False)
+
+# Create the orders table
+conn.execute("""
+CREATE TABLE orders (
+    order_id INTEGER,
+    dealership_id INTEGER,
+    status VARCHAR,
+    total_cost DOUBLE,
+    technician VARCHAR,
+    order_date DATE
+);
+""")
+
+# Create the events table
+conn.execute("""
+CREATE TABLE events (
+    event_id INTEGER,
+    order_id INTEGER,
+    status VARCHAR,
+    cost DOUBLE,
+    date_time TIMESTAMP
+);
+""")
+
+# Create the technicians table
+conn.execute("""
+CREATE TABLE technicians (
+    technician_id INTEGER,
+    name VARCHAR,
+    expertise VARCHAR
+);
+""")
+
+# Create the dealerships table
+conn.execute("""
+CREATE TABLE dealerships (
+    dealership_id INTEGER,
+    location VARCHAR,
+    manager VARCHAR,
+    name VARCHAR
+);
+""")
+
+# Insert some sample data into the orders table
+conn.execute("""
+INSERT INTO orders VALUES
+(100, 2, 'Completed', 85.00, 'James Brown', '2023-08-01'),
+(101, 1, 'Completed', 161.0, 'Jane Smith', '2023-08-10'),
+(102, 2, 'In Progress', 175.5, 'James Brown', '2023-08-11'),
+(103, 3, 'Completed', 216.0, 'Mary Johnson', '2023-08-10'),
+(104, 4, 'Completed', 175.0, 'Robert White', '2023-08-11');
+""")
+
+# Insert some sample data into the events table
+conn.execute("""
+INSERT INTO events VALUES
+(1, 100, 'In Progress', 0.00, '2023-08-01 08:00:00'),
+(1, 100, 'Completed', 85.00, '2023-08-01 09:00:00'),
+(1, 101, 'Received', 40.00, '2023-08-10 08:00:00'),
+(2, 101, 'In Progress', 50.25, '2023-08-10 10:00:00'),
+(3, 102, 'In Progress', 80.00, '2023-08-10 12:00:00'),
+(4, 104, 'Received', 40.00, '2023-08-11 08:00:00'),
+(5, 104, 'In Progress', 45.00, '2023-08-11 10:00:00'),
+(6, 102, 'Received', 40.00, '2023-08-10 08:30:00'),
+(7, 102, 'In Progress', 55.50, '2023-08-10 10:30:00'),
+(8, 101, 'Completed', 70.75, '2023-08-10 14:00:00'),
+(9, 103, 'Received', 60.00, '2023-08-10 09:00:00'),
+(10, 103, 'In Progress', 45.50, '2023-08-10 11:00:00'),
+(11, 104, 'Completed', 90.00, '2023-08-11 12:30:00'),
+(12, 103, 'Completed', 110.50, '2023-08-10 15:00:00');
+""")
+
+# Insert sample data into technicians table
+conn.execute("""
+INSERT INTO technicians VALUES
+(1001, 'Jane Smith', 'Brakes'),
+(1002, 'James Brown', 'Transmission'),
+(1003, 'Mary Johnson', 'Engine'),
+(1004, 'Robert White', 'Tires');
+""")
+
+# Insert sample data into dealerships table
+conn.execute("""
+INSERT INTO dealerships VALUES
+(1, 'New York', 'John Doe', 'Doe Dealership'),
+(2, 'Los Angeles', 'Jane Lee', 'Jane Dealership'),
+(3, 'Chicago', 'Jim Bean', 'Jim Bean Ford'),
+(4, 'Houston', 'Jill Ray', 'Houston Toyota');
+""")
+
+# Boilerplate for a potential solution
+# Define the CTE and query
+event_summary_query = """
+SELECT * FROM events LIMIT 10;
+"""
+
+# Execute the query
+result = conn.execute(event_summary_query)
+
+# Fetch the result as a Pandas DataFrame (useful for further analysis or visualization)
+df = result.fetchdf()
+df
+
+#define the query with function for running costs
+running_costs_query=
+"""SELECT
+event_id,
+event_date,
+cost,
+  SUM(COST) OVER (ORDER BY event_date) AS running_total_cost
+  FROM events
+  ORDER BY event_date;"""
+
+Define the join query
+join_query=
+"""SELECT
+e.event_id,
+e.event_name,
+e.event_date,
+ep.partionist_id,
+ep.participant_name
+FROM events e
+JOIN event_partiticipants ep ON e.event_id=ep.event_id
+ORDER BY e.event_date;"""
